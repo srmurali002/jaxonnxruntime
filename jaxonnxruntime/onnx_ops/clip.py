@@ -51,6 +51,14 @@ class Clip(handler.Handler):
     return onnx_clip
 
   @classmethod
+  def version_11(
+      cls, node: onnx_node.OnnxNode, inputs: Sequence[Any]
+  ) -> Callable[..., Any]:
+    """ONNX version_11 Clip op."""
+    cls._prepare_13(node, inputs, onnx_clip)
+    return onnx_clip
+
+  @classmethod
   def version_13(
       cls, node: onnx_node.OnnxNode, inputs: Sequence[Any]
   ) -> Callable[..., Any]:
@@ -60,8 +68,14 @@ class Clip(handler.Handler):
 
 
 @functools.partial(jax.jit, static_argnames=())
-def onnx_clip(data, amin=None, amax=None):
+def onnx_clip(*input_args, amin=None, amax=None):
   """https://github.com/onnx/onnx/blob/v1.12.0/docs/Operators.md#Clip for more details."""
+  data = input_args[0]
+  if len(input_args) >= 2:
+    amin = input_args[1]
+  if len(input_args) >= 3:
+    amax = input_args[2]
+    
   if amin is None and amax is None:
     return data
-  return jnp.clip(data, min=amin, max=amax)
+  return jnp.clip(data, a_min=amin, a_max=amax)
