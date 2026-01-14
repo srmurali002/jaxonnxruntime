@@ -80,21 +80,26 @@ class Handler:
     Returns:
       The jax function.
     """
-    ver_handle = getattr(cls, "version_{}".format(cls.SINCE_VERSION), None)
-    if ver_handle:
-      return ver_handle(node, inputs, **kwargs)  # pylint: disable=not-callable
-
     # Get all the methods that start with "version_"
     class_methods = inspect.getmembers(cls, predicate=inspect.ismethod)
-    version_methods = [
-        method_name
-        for method_name, _ in class_methods
+    version_methods = {
+        int(method_name.split("_")[1]): method
+        for method_name, method in class_methods
         if method_name.startswith("version_")
-    ]
+    }
+
+    if not version_methods:
+      raise NotImplementedError(f"{node.op_type} has no versioned implementations.")
+
+    # Find the largest version which is <= cls.SINCE_VERSION
+    available_versions = sorted(version_methods.keys(), reverse=True)
+    for v in available_versions:
+      if v <= cls.SINCE_VERSION:
+        return version_methods[v](node, inputs, **kwargs)
 
     raise NotImplementedError(
         f"{node.op_type} version {cls.SINCE_VERSION} is not implemented."
-        f" Only have those versions: {version_methods}."
+        f" Only have those versions: {sorted(version_methods.keys())}."
     )
 
   @classmethod
