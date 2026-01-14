@@ -30,6 +30,19 @@ class Clip(handler.Handler):
   """Implementation of the ONNX Clip operator."""
 
   @classmethod
+  def _prepare_6(
+      cls, node: onnx_node.OnnxNode, inputs: Sequence[Any], onnx_jax_impl: Any
+  ) -> None:
+    node.attrs_dict['amin'] = node.attrs.get('min')
+    node.attrs_dict['amax'] = node.attrs.get('max')
+
+  @classmethod
+  def _prepare_13(
+      cls, node: onnx_node.OnnxNode, inputs: Sequence[Any], onnx_jax_impl: Any
+  ) -> None:
+    pass
+
+  @classmethod
   def _prepare(
       cls, node: onnx_node.OnnxNode, inputs: Sequence[Any], onnx_jax_impl: Any
   ) -> None:
