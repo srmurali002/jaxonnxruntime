@@ -89,7 +89,9 @@ class Handler:
     }
 
     if not version_methods:
-      raise NotImplementedError(f"{node.op_type} has no versioned implementations.")
+      raise NotImplementedError(
+          f"{node.op_type} has no versioned implementations."
+      )
 
     # Find the largest version which is <= cls.SINCE_VERSION
     available_versions = sorted(version_methods.keys(), reverse=True)
@@ -109,7 +111,13 @@ class Handler:
       inputs: Sequence[Any],
       onnx_jax_impl: Callable[..., Any],
   ) -> None:
-    """Rwrite the OnnxNode to prepare the inputs attributes for the onnx jax implementation."""
+    """Rwrite the OnnxNode to prepare the inputs attributes.
+
+    Args:
+      node: The onnx node to be handled.
+      inputs: The inputs of the onnx node.
+      onnx_jax_impl: The jax function for the onnx op.
+    """
     raise NotImplementedError
 
 

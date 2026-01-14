@@ -89,7 +89,7 @@ def onnx_reducesum(
     keepdims=1,
     noop_with_empty_axes=0,
 ):
-  """The impl for https://github.com/onnx/onnx/blob/v1.12.0/docs/Operators.md#ReduceSum."""
+  """The impl for ReduceSum operator."""
   assert len(input_args) == 1 or len(input_args) == 2
   data = input_args[0]
   if axes is None and noop_with_empty_axes > 0:

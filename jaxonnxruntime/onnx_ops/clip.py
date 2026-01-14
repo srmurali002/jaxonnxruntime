@@ -30,17 +30,10 @@ class Clip(handler.Handler):
   """Implementation of the ONNX Clip operator."""
 
   @classmethod
-  def _prepare_6(
+  def _prepare(
       cls, node: onnx_node.OnnxNode, inputs: Sequence[Any], onnx_jax_impl: Any
-  ):
-    node.attrs_dict['amin'] = node.attrs.get('min')
-    node.attrs_dict['amax'] = node.attrs.get('max')
-
-  @classmethod
-  def _prepare_13(
-      cls, node: onnx_node.OnnxNode, inputs: Sequence[Any], onnx_jax_impl: Any
-  ):
-    pass
+  ) -> None:
+    cls._prepare_13(node, inputs, onnx_jax_impl)
 
   @classmethod
   def version_6(
@@ -68,14 +61,14 @@ class Clip(handler.Handler):
 
 
 @functools.partial(jax.jit, static_argnames=())
-def onnx_clip(*input_args, amin=None, amax=None):
-  """https://github.com/onnx/onnx/blob/v1.12.0/docs/Operators.md#Clip for more details."""
+def onnx_clip(*input_args: jax.Array, amin=None, amax=None) -> jax.Array:
+  """The impl for Clip operator."""
   data = input_args[0]
   if len(input_args) >= 2:
     amin = input_args[1]
   if len(input_args) >= 3:
     amax = input_args[2]
-    
+
   if amin is None and amax is None:
     return data
   return jnp.clip(data, a_min=amin, a_max=amax)

@@ -17,6 +17,7 @@ import functools
 import inspect
 from typing import Any
 
+import jax
 from jax import jit
 from jax import numpy as jnp
 from jaxonnxruntime.core import handler
@@ -30,7 +31,7 @@ class HardSigmoid(handler.Handler):
   @classmethod
   def _prepare(
       cls, node: onnx_node.OnnxNode, inputs: Sequence[Any], onnx_jax_impl: Any
-  ):
+  ) -> None:
     sig = inspect.signature(onnx_jax_impl)
     kwparams = [
         param.name
@@ -50,7 +51,9 @@ class HardSigmoid(handler.Handler):
 
 
 @functools.partial(jit, static_argnames=("alpha", "beta"))
-def onnx_hardsigmoid(*input_args, alpha=0.2, beta=0.5):
+def onnx_hardsigmoid(
+    *input_args: jax.Array, alpha: float = 0.2, beta: float = 0.5
+) -> jax.Array:
   """The internal jax impl for onnx HardSigmoid op."""
   assert len(input_args) == 1
   x = input_args[0]
